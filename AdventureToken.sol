@@ -8,14 +8,14 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 contract AdventureToken is ERC20, Ownable, ERC20Burnable {
     constructor() ERC20("Adventure Token", "ADVT") Ownable(msg.sender) {}
 
-    enum Items { Sword, Shield, Elixir, Scroll }
+    enum GameItems { Sword, Shield, Elixir, Scroll }
 
-    struct Staker {
-        uint256 stakedAmount;
-        uint256 stakingTime;
+    struct StakeDetails {
+        uint256 amountStaked;
+        uint256 stakeStartTime;
     }
 
-    mapping(address => Staker) public stakers;
+    mapping(address => StakeDetails) public stakingRecords;
 
     struct PlayerInventory {
         uint256 swords;
@@ -24,55 +24,55 @@ contract AdventureToken is ERC20, Ownable, ERC20Burnable {
         uint256 scrolls;
     }
 
-    mapping(address => PlayerInventory) public playerInventory;
+    mapping(address => PlayerInventory) public playerInventories;
 
-    uint256 public rewardRate = 1000; // Reward rate per second
+    uint256 public rewardPerSecond = 1000; // Reward rate per second
 
-    function stakeTokens(uint256 _amount) public {
+    function stakeAdventureTokens(uint256 _amount) public {
         require(_amount <= balanceOf(msg.sender), "Insufficient balance to stake");
         _burn(msg.sender, _amount);
-        stakers[msg.sender].stakedAmount += _amount;
-        stakers[msg.sender].stakingTime = block.timestamp;
+        stakingRecords[msg.sender].amountStaked += _amount;
+        stakingRecords[msg.sender].stakeStartTime = block.timestamp;
     }
 
-    function withdrawStakedTokens() public {
-        uint256 stakedAmount = stakers[msg.sender].stakedAmount;
+    function withdrawStakedAdventureTokens() public {
+        uint256 stakedAmount = stakingRecords[msg.sender].amountStaked;
         require(stakedAmount > 0, "No staked tokens to withdraw");
 
-        uint256 stakingDuration = block.timestamp - stakers[msg.sender].stakingTime;
-        uint256 reward = stakingDuration * rewardRate;
+        uint256 stakingDuration = block.timestamp - stakingRecords[msg.sender].stakeStartTime;
+        uint256 reward = stakingDuration * rewardPerSecond;
 
-        stakers[msg.sender].stakedAmount = 0;
+        stakingRecords[msg.sender].amountStaked = 0;
         _mint(msg.sender, stakedAmount + reward);
     }
 
-    function redeemItem(Items _item) public {
-        if (_item == Items.Sword) {
-            require(balanceOf(msg.sender) >= 15, "Insufficient tokens");
-            playerInventory[msg.sender].swords += 1;
+    function redeemGameItem(GameItems _item) public {
+        if (_item == GameItems.Sword) {
+            require(balanceOf(msg.sender) >= 15, "Insufficient tokens for Sword");
+            playerInventories[msg.sender].swords += 1;
             burn(15);
-        } else if (_item == Items.Shield) {
-            require(balanceOf(msg.sender) >= 25, "Insufficient tokens");
-            playerInventory[msg.sender].shields += 1;
+        } else if (_item == GameItems.Shield) {
+            require(balanceOf(msg.sender) >= 25, "Insufficient tokens for Shield");
+            playerInventories[msg.sender].shields += 1;
             burn(25);
-        } else if (_item == Items.Elixir) {
-            require(balanceOf(msg.sender) >= 8, "Insufficient tokens");
-            playerInventory[msg.sender].elixirs += 1;
+        } else if (_item == GameItems.Elixir) {
+            require(balanceOf(msg.sender) >= 8, "Insufficient tokens for Elixir");
+            playerInventories[msg.sender].elixirs += 1;
             burn(8);
-        } else if (_item == Items.Scroll) {
-            require(balanceOf(msg.sender) >= 5, "Insufficient tokens");
-            playerInventory[msg.sender].scrolls += 1;
+        } else if (_item == GameItems.Scroll) {
+            require(balanceOf(msg.sender) >= 5, "Insufficient tokens for Scroll");
+            playerInventories[msg.sender].scrolls += 1;
             burn(5);
         } else {
             revert("Invalid item selected");
         }
     }
 
-    function mintToken(address _to, uint256 _amount) public onlyOwner {
-        _mint(_to, _amount);
+    function mintAdventureToken(address _recipient, uint256 _amount) public onlyOwner {
+        _mint(_recipient, _amount);
     }
 
-    function checkBalance() public view returns (uint256) {
+    function getBalance() public view returns (uint256) {
         return balanceOf(msg.sender);
     }
 }
