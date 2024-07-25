@@ -29,7 +29,7 @@ This Solidity contract, `AdventureToken`, is designed to create an ERC20 token w
 4. **Balance Checking**:
    - Users can check their current token balance.
    - **Function**:
-     - `checkBalance()`: Returns the token balance of the user who called the function.
+     - `getBalance()`: Returns the token balance of the user who called the function.
 
 
 # Description
